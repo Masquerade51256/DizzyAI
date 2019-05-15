@@ -1,4 +1,4 @@
-from TimeNormalizer import TimeNormalizer
+from TimeNLP import TimeNormalizer
 from cocoNLP.extractor import extractor
 from LeaveMessage import LeaveMessage
 import re
@@ -13,8 +13,11 @@ def get_start_and_end_and_duration(sentence):
     s_time = message.startDate
     e_time = message.endDate
     duration = message.duration
-    res = json.loads(tn.parse(target=sentence))
-    # print(res)
+    pos, res = tn.parse(target=sentence)
+    print(pos)
+    print(res)
+    res = json.loads(res)
+
     try:
         if res['type'] == "timedelta":
             duration = res['timedelta']
