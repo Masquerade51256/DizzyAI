@@ -1,4 +1,4 @@
-TimeNLP依赖
+TimeNLP依赖（需要先进入TimeNLP目录）
 
 ```
 cd TimeNLP
