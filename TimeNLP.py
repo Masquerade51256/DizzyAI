@@ -27,18 +27,9 @@ class TimeNormalizer:
         self.pattern, self.holi_solar, self.holi_lunar = self.init()
 
     def init(self):
-        fpath = os.path.dirname(__file__) + '/resource/reg.pkl'
-        try:
-            with open(fpath, 'rb') as f:
-                pattern = pickle.load(f)
-        except:
-            with open(os.path.dirname(__file__) + '/resource/regex.txt', 'r', encoding='utf-8') as f:
-                content = f.read()
-            p = re.compile(str(content))
-            with open(fpath, 'wb') as f:
-                pickle.dump(p, f)
-            with open(fpath, 'rb') as f:
-                pattern = pickle.load(f)
+        with open(os.path.dirname(__file__) + '/resource/regex.txt', 'r', encoding='utf-8') as f:
+            content = f.read()
+        pattern = re.compile(str(content))
         with open(os.path.dirname(__file__) + '/resource/holi_solar.json', 'r', encoding='utf-8') as f:
             holi_solar = json.load(f)
         with open(os.path.dirname(__file__) + '/resource/holi_lunar.json', 'r', encoding='utf-8') as f:
@@ -59,7 +50,7 @@ class TimeNormalizer:
         self.timeBase = arrow.get(timeBase).format('YYYY-M-D-H-m-s')
         self.oldTimeBase = self.timeBase
         self.__preHandling()
-        self.timeToken = self.__timeEx()
+        self.pos, self.timeToken = self.__timeEx()
         dic = {}
         res = self.timeToken
         if self.isTimeSpan:
@@ -77,15 +68,15 @@ class TimeNormalizer:
             else:
                 dic['type'] = 'timespan'
                 dic['timespan'] = [res[0].time.format("YYYY-MM-DD HH:mm:ss"), res[1].time.format("YYYY-MM-DD HH:mm:ss")]
-        return json.dumps(dic)
+        return self.pos, json.dumps(dic)
 
     def __preHandling(self):
         """
         待匹配字符串的清理空白符和语气助词以及大写数字转化的预处理
         :return:
         """
-        self.target = StringPreHandler.delKeyword(self.target, "\\s+")  # 清理空白符
-        self.target = StringPreHandler.delKeyword(self.target, "[的]+")  # 清理语气助词
+        # self.target = StringPreHandler.delKeyword(self.target, "\\s+")  # 清理空白符
+        # self.target = StringPreHandler.delKeyword(self.target, "[的]+")  # 清理语气助词
         self.target = StringPreHandler.numberTranslator(self.target)  # 大写数字转化
 
     def __timeEx(self):
@@ -93,14 +84,16 @@ class TimeNormalizer:
 
         :param target: 输入文本字符串
         :param timeBase: 输入基准时间
-        :return: TimeUnit[]时间表达式类型数组
+        :return: Pos[]匹配到的位置序列 TimeUnit[]时间表达式类型数组
         """
         startline = -1
         endline = -1
         rpointer = 0
         temp = []
+        pos = []
         match = self.pattern.finditer(self.target)
         for m in match:
+            pos.append(m.span())
             startline = m.start()
             if startline == endline:
                 rpointer -= 1
@@ -116,7 +109,7 @@ class TimeNormalizer:
             res.append(TimeUnit(temp[i], self, contextTp))
             contextTp = res[i].tp
         res = self.__filterTimeUnit(res)
-        return res
+        return pos, res
 
     def __filterTimeUnit(self, tu_arr):
         """
