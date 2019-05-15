@@ -2,11 +2,11 @@ LunarSolarConverter.py
 README.md
 RangeTimeEnum.py
 StringPreHandler.py
-Test.py
 TimeNormalizer.py
 TimePoint.py
 TimeUnit.py
 __init__.py
+main.py
 setup.py
 TimeConverter.egg-info/PKG-INFO
 TimeConverter.egg-info/SOURCES.txt

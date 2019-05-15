@@ -14,14 +14,14 @@ def get_start_and_end_and_duration(sentence):
     e_time = message.endDate
     duration = message.duration
     res = json.loads(tn.parse(target=sentence))
-    print(res)
+    # print(res)
     try:
-        if res['type'] is "timedelta":
+        if res['type'] == "timedelta":
             duration = res['timedelta']
-        elif res['type'] is "timespan":
+        elif res['type'] == "timespan":
             s_time = res['timespan'][0]
             e_time = res['timespan'][1]
-        elif res['type'] is "timestamp":
+        elif res['type'] == "timestamp":
             s_time = res['timestamp']
         return (s_time, e_time, duration)
     except:
@@ -40,25 +40,26 @@ def get_type(sentence):
 
 def get_examinPerson(sentence):
     name = ex.extract_name(sentence)
-    print(name)
+    # print(name)
     return name
 
 
 def ask(message):
-    if message.startDate is None and message.endDate is not None and message.duration is None:
-        return "请输入开始时间"
-    elif message.startDate is not None and message.endDate is None and message.duration is None:
-        return "你想请几天假"
-    elif message.startDate is None and message.endDate is None:
-        return "请输入请假时间"
-
     if message.type is None:
         return "请输入请假类型"
 
-    if message.examinePerson is None:
+    if message.startDate is None and message.endDate is None and message.duration is None:
+        return "请输入请假时间"
+    elif message.startDate is not None and message.endDate is None and message.duration is None:
+        return "你想请几天假"
+    elif message.startDate is None and message.endDate is None:
+        return "请输入请假的开始或结束时间"
+
+    while message.examinePerson is None:
         print("请输入您的审批人姓名")
         sentence = input()
         message.examinePerson = get_examinPerson(sentence)
+    return None
 
 
 
@@ -69,11 +70,11 @@ def do_ask_for_leave(sentence):
 
 def ask_for_leave(sentence):
     while True:
-        if message.startDate is None or message.endDate is None:
-            message.startDate, message.endDate, message.duration = get_start_and_end_and_duration(sentence)
-
         if message.type is None:
             message.type = get_type(sentence)
+
+        if message.startDate is None or message.endDate is None:
+            message.startDate, message.endDate, message.duration = get_start_and_end_and_duration(sentence)
 
         if message.examinePerson is None:
             message.examinePerson = get_examinPerson(sentence)
@@ -96,7 +97,7 @@ def main():
         sentence = input()
         if do_ask_for_leave(sentence):
             message = ask_for_leave(sentence)
-            print(message.startDate, message.endDate, message.duration, message.type)
+            print(message.startDate, message.endDate, message.duration, message.type, message.examinePerson)
             break
         print("你要做什么呢")
 
