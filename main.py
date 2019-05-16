@@ -34,10 +34,13 @@ def get_start_and_end_and_duration(sentence):
 def get_type(sentence):
     affairs = re.search(r'(.*)事(.*?)假(.*).*', sentence, re.M | re.I)
     sick = re.search(r'(.*)病(.*?)假(.*).*', sentence, re.M | re.I)
+    marriage = re.search(r'(.*)婚(.*?)假(.*).*', sentence, re.M | re.I)
     if affairs:
         return "事假"
     elif sick:
         return "病假"
+    elif marriage:
+        return "婚假"
     else:
         return None
 
@@ -100,7 +103,11 @@ def main():
         sentence = input()
         if do_ask_for_leave(sentence):
             message = ask_for_leave(sentence)
-            print(message.startDate, message.endDate, message.duration, message.type, message.examinePerson)
+            print("\n开始时间：", message.startDate,
+                  "\n结束时间：", message.endDate,
+                  "\n请假长度：", message.duration,
+                  "\n请假类型：", message.type,
+                  "\n审核人：", message.examinePerson)
             break
         print("你要做什么呢")
 
