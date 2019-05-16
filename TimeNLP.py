@@ -53,6 +53,8 @@ class TimeNormalizer:
         self.pos, self.timeToken = self.__timeEx()
         dic = {}
         res = self.timeToken
+
+        print(self.isTimeSpan)
         if self.isTimeSpan:
             if self.invalidSpan:
                 dic['error'] = 'no time pattern could be extracted.'

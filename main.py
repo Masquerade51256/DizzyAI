@@ -1,5 +1,5 @@
 from TimeNLP import TimeNormalizer
-from cocoNLP.extractor import extractor
+from extractor import extractor
 from LeaveMessage import LeaveMessage
 import re
 import json
@@ -14,8 +14,8 @@ def get_start_and_end_and_duration(sentence):
     e_time = message.endDate
     duration = message.duration
     pos, res = tn.parse(target=sentence)
-    print(pos)
-    print(res)
+    # print(pos)
+    # print(res)
     res = json.loads(res)
 
     try:
