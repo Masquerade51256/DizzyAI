@@ -48,6 +48,10 @@ class TimeNormalizer:
         self.timeSpan = ''
         self.target = str(target)
         self.timeBase = arrow.get(timeBase).format('YYYY-M-D-H-m-s')
+        # print(type(timeBase))
+        # print(timeBase)
+        # print(type(self.timeBase))
+        # print(self.timeBase)
         self.oldTimeBase = self.timeBase
         self.__preHandling()
         self.pos, self.timeToken = self.__timeEx()

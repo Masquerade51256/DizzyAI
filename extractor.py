@@ -12,7 +12,7 @@ class extractor():
 
     def extract_email(self, text):
         if text=='':
-            return []
+            return None
         eng_texts = self.replace_chinese(text)
         eng_texts = eng_texts.replace(' at ','@').replace(' dot ','.')
         sep = ',!?:; ，。！？《》、|\\/'
@@ -25,7 +25,10 @@ class extractor():
             result = re.match(email_pattern, eng_text, flags=0)
             if result:
                 emails.append(result.string)
-        return emails
+        if len(emails) == 0:
+            return None
+        else:
+            return emails
 
 
     def replace_chinese(self, text):
@@ -56,8 +59,8 @@ class extractor():
 
 
     def extract_name(self, text):
-        if text=='':
-            return []
+        if text == '':
+            return None
         seg_list = [(str(t.word), str(t.flag)) for t in pseg.cut(text)]
         names = []
         for ele_tup in seg_list:

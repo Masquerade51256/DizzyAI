@@ -6,3 +6,4 @@ class LeaveMessage:
         self.type = None
         self.examinePerson = None
         self.reason = None
+        self.email = None

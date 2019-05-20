@@ -2,6 +2,7 @@ from TimeNLP import TimeNormalizer
 from extractor import extractor
 from LeaveMessage import LeaveMessage
 import re
+import arrow
 import json
 
 message = LeaveMessage()
@@ -21,11 +22,18 @@ def get_start_and_end_and_duration(sentence):
     try:
         if res['type'] == "timedelta":
             duration = res['timedelta']
+
         elif res['type'] == "timespan":
             s_time = res['timespan'][0]
             e_time = res['timespan'][1]
         elif res['type'] == "timestamp":
             s_time = res['timestamp']
+
+        if s_time is not None and duration is not None:
+            t_duration = int(duration.split()[0])
+            t_duration -= 1
+            e_time = arrow.get(s_time).shift(days=+t_duration).format('YYYY-MM-DD HH:mm:ss')
+
         return (s_time, e_time, duration)
     except:
         return (s_time, e_time, duration)
@@ -49,6 +57,9 @@ def get_examinPerson(sentence):
     # print(name)
     return name
 
+def get_email(sentence):
+    email = ex.extract_email(sentence)
+    return email
 
 def ask(message):
     if message.type is None:
@@ -61,10 +72,12 @@ def ask(message):
     elif message.startDate is None and message.endDate is None:
         return "请输入请假的开始或结束时间"
 
-    while message.examinePerson is None:
-        print("请输入您的审批人姓名")
-        sentence = input()
-        message.examinePerson = get_examinPerson(sentence)
+    if message.examinePerson is None:
+        return "请输入您的审批人姓名"
+
+    if message.email is None:
+        return "请输入抄送邮箱"
+
     return None
 
 
@@ -84,6 +97,9 @@ def ask_for_leave(sentence):
 
         if message.examinePerson is None:
             message.examinePerson = get_examinPerson(sentence)
+
+        if message.email is None:
+            message.email = get_email(sentence)
 
         question = ask(message)
         if question is not None:
@@ -107,7 +123,8 @@ def main():
                   "\n结束时间：", message.endDate,
                   "\n请假长度：", message.duration,
                   "\n请假类型：", message.type,
-                  "\n审核人：", message.examinePerson)
+                  "\n审核人：", message.examinePerson,
+                  "\n抄送邮箱：", message.email)
             break
         print("你要做什么呢")
 
