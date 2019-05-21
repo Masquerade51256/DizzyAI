@@ -32,7 +32,7 @@ def get_start_and_end_and_duration(sentence):
             s_time = res['timestamp']
 
         if s_time is not None and duration is not None:
-            t_days = int(duration.split()[1])
+            t_days = int(duration.split()[0])
             t_days -= 1
 
             # t_hours = arrow.get(duration.split(', ')[0], 'H:mm:ss')
