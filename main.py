@@ -1,14 +1,15 @@
 from TimeNLP import TimeNormalizer
-from extractor import extractor
+from extractor import Extractor
 from LeaveMessage import LeaveMessage
+# from name import NameMatcher
 import re
 import arrow
 import json
 
 message = LeaveMessage()
-
+# nm = NameMatcher()
 tn = TimeNormalizer()
-ex = extractor()
+ex = Extractor()
 
 def get_start_and_end_and_duration(sentence):
     s_time = message.startDate
@@ -22,6 +23,7 @@ def get_start_and_end_and_duration(sentence):
     try:
         if res['type'] == "timedelta":
             duration = res['timedelta']
+            # print(duration)
 
         elif res['type'] == "timespan":
             s_time = res['timespan'][0]
@@ -30,9 +32,12 @@ def get_start_and_end_and_duration(sentence):
             s_time = res['timestamp']
 
         if s_time is not None and duration is not None:
-            t_duration = int(duration.split()[0])
-            t_duration -= 1
-            e_time = arrow.get(s_time).shift(days=+t_duration).format('YYYY-MM-DD HH:mm:ss')
+            t_days = int(duration.split()[1])
+            t_days -= 1
+
+            # t_hours = arrow.get(duration.split(', ')[0], 'H:mm:ss')
+
+            e_time = arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
 
         return (s_time, e_time, duration)
     except:
@@ -54,6 +59,7 @@ def get_type(sentence):
 
 def get_examinPerson(sentence):
     name = ex.extract_name(sentence)
+    # name = nm.match(sentence)
     # print(name)
     return name
 

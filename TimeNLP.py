@@ -129,3 +129,13 @@ class TimeNormalizer:
             if tu.time.timestamp != 0:
                 res.append(tu)
         return res
+
+if __name__ == '__main__':
+
+    s = input()
+    tn = TimeNormalizer()
+    while s:
+        pos, res = tn.parse(target=s)
+        print(pos)
+        print(res)
+        s = input()
