@@ -30,14 +30,21 @@ def get_start_and_end_and_duration(sentence):
             e_time = res['timespan'][1]
         elif res['type'] == "timestamp":
             s_time = res['timestamp']
+            print(type(s_time))
+            print(s_time)
 
-        if s_time is not None and duration is not None:
+        if s_time is not None and duration is not None and e_time is None:
             t_days = int(duration.split()[0])
             t_days -= 1
-
-            # t_hours = arrow.get(duration.split(', ')[0], 'H:mm:ss')
-
             e_time = arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
+        elif s_time is not None and duration is not None and e_time is not None:
+            t_days = int(duration.split()[0])
+            t_days -= 1
+            if e_time != arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss'):
+                s_time = None
+                e_time = None
+                duration = None
+                print("请重新输入请假时间")
 
         return (s_time, e_time, duration)
     except:
