@@ -30,8 +30,7 @@ def get_start_and_end_and_duration(sentence):
             e_time = res['timespan'][1]
         elif res['type'] == "timestamp":
             s_time = res['timestamp']
-            print(type(s_time))
-            print(s_time)
+            # print(s_time)
 
         if s_time is not None and duration is not None and e_time is None:
             t_days = int(duration.split()[0])
@@ -124,6 +123,14 @@ def ask_for_leave(sentence):
         sentence = input()
         if "确认" in sentence:
             break
+        else:
+            message.duration = None
+            message.type = None
+            message.email = None
+            message.endDate = None
+            message.examinePerson = None
+            message.startDate = None
+            message.reason = None
     return message
 
 
