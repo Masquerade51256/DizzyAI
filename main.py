@@ -123,7 +123,7 @@ def ask_for_leave(sentence):
         sentence = input()
         if "确认" in sentence:
             break
-        else:
+        elif "不" in sentence:
             message.duration = None
             message.type = None
             message.email = None
