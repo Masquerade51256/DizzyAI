@@ -7,7 +7,8 @@ import arrow
 import json
 from stanfordcorenlp import StanfordCoreNLP
 from nltk.tree import ParentedTree
-import get_reason as gr
+from get_reason import find_reason, preprocess
+
 
 
 message = LeaveMessage()
@@ -147,14 +148,18 @@ def main():
         while True:
             print("请输入")
             sentence = input()
-            sentence = gr.preprocess(sentence)
+            sentence = preprocess(sentence)
             splits = re.compile("[,，。,]").split(sentence)
             results = [nlp.parse(s) for s in splits]
             trees = [ParentedTree.fromstring(result) for result in results]
-            final_result = gr.find_reason(trees)
+            final_result = find_reason(trees)
             # output: leave_reason
             output = "".join(final_result)
-            print(output)
+            # 没找到理由
+            if len(output) == 1:
+                print("您的请假理由是？")
+            else:
+                print(output)
 
         # sentence = input()
         # if do_ask_for_leave(sentence):

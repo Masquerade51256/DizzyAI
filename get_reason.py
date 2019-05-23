@@ -129,20 +129,20 @@ def preprocess(sentence):
     return sentence
 
 
-def main():
-    with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
-        nlp.parse("test")
-        while True:
-            print("请输入")
-            sentence = input()
-            sentence = preprocess(sentence)
-            splits = re.compile("[,，。,]").split(sentence)
-            results = [nlp.parse(s) for s in splits]
-            trees = [ParentedTree.fromstring(result) for result in results]
-            final_result = find_reason(trees)
-            output = "".join(final_result)
-            print(output)
+# def main():
+#     with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
+#         nlp.parse("test")
+#         while True:
+#             print("请输入")
+#             sentence = input()
+#             sentence = preprocess(sentence)
+#             splits = re.compile("[,，。,]").split(sentence)
+#             results = [nlp.parse(s) for s in splits]
+#             trees = [ParentedTree.fromstring(result) for result in results]
+#             final_result = find_reason(trees)
+#             output = "".join(final_result)
+#             print(output)
 
 
-main()
+# main()
 
