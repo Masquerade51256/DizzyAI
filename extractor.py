@@ -13,15 +13,16 @@ class Extractor:
     Aditor = []
 
     def __init__(self):
-        fp = open('./resource/myDict.dict', 'r')
-        s = fp.readline()
-        while s:
-            dict = s.split(' ')
-            name = dict[0]
-            self.Aditor.append(name)
+        # fp = open('./resource/myDict.dict', 'r')
+        with open('./resource/myDict.dict', 'r', encoding='UTF-8') as fp:
             s = fp.readline()
-        # print(self.Aditor)
-        fp.close()
+            while s:
+                dict = s.split(' ')
+                name = dict[0]
+                self.Aditor.append(name)
+                s = fp.readline()
+            # print(self.Aditor)
+            fp.close()
 
         jieba.load_userdict('./resource/myDict.dict')
         return

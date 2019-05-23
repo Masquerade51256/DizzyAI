@@ -5,11 +5,16 @@ from LeaveMessage import LeaveMessage
 import re
 import arrow
 import json
+from stanfordcorenlp import StanfordCoreNLP
+from nltk.tree import ParentedTree
+import get_reason as gr
+
 
 message = LeaveMessage()
 # nm = NameMatcher()
 tn = TimeNormalizer()
 ex = Extractor()
+
 
 def get_start_and_end_and_duration(sentence):
     s_time = message.startDate
@@ -63,15 +68,18 @@ def get_type(sentence):
     else:
         return None
 
+
 def get_examinPerson(sentence):
     name = ex.extract_name(sentence)
     # name = nm.match(sentence)
     # print(name)
     return name
 
+
 def get_email(sentence):
     email = ex.extract_email(sentence)
     return email
+
 
 def ask(message):
     if message.type is None:
@@ -91,7 +99,6 @@ def ask(message):
         return "请输入抄送邮箱"
 
     return None
-
 
 
 def do_ask_for_leave(sentence):
@@ -135,18 +142,31 @@ def ask_for_leave(sentence):
 
 
 def main():
-    while True:
-        sentence = input()
-        if do_ask_for_leave(sentence):
-            message = ask_for_leave(sentence)
-            print("\n开始时间：", message.startDate,
-                  "\n结束时间：", message.endDate,
-                  "\n请假长度：", message.duration,
-                  "\n请假类型：", message.type,
-                  "\n审核人：", message.examinePerson,
-                  "\n抄送邮箱：", message.email)
-            break
-        print("你要做什么呢")
+    with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
+        nlp.parse("test")
+        while True:
+            print("请输入")
+            sentence = input()
+            sentence = gr.preprocess(sentence)
+            splits = re.compile("[,，。,]").split(sentence)
+            results = [nlp.parse(s) for s in splits]
+            trees = [ParentedTree.fromstring(result) for result in results]
+            final_result = gr.find_reason(trees)
+            # output: leave_reason
+            output = "".join(final_result)
+            print(output)
+
+        # sentence = input()
+        # if do_ask_for_leave(sentence):
+        #     message = ask_for_leave(sentence)
+        #     print("\n开始时间：", message.startDate,
+        #           "\n结束时间：", message.endDate,
+        #           "\n请假长度：", message.duration,
+        #           "\n请假类型：", message.type,
+        #           "\n审核人：", message.examinePerson,
+        #           "\n抄送邮箱：", message.email)
+        #     break
+        # print("你要做什么呢")
 
 
 main()
