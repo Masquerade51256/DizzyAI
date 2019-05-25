@@ -5,5 +5,5 @@ class LeaveMessage:
         self.duration = None
         self.type = None
         self.examinePerson = None
-        self.reason = None
+        self.reason = ""
         self.email = None

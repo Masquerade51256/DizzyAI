@@ -126,19 +126,21 @@ def ask_for_leave(sentence):
             print(question)
             sentence = input()
             continue
-
-        print("确认吗？")
-        sentence = input()
-        if "确认" in sentence:
+        else:
             break
-        elif "不" in sentence:
-            message.duration = None
-            message.type = None
-            message.email = None
-            message.endDate = None
-            message.examinePerson = None
-            message.startDate = None
-            message.reason = None
+
+        # print("确认吗？")
+        # sentence = input()
+        # if "确认" in sentence:
+        #     break
+        # elif "不" in sentence:
+        #     message.duration = None
+        #     message.type = None
+        #     message.email = None
+        #     message.endDate = None
+        #     message.examinePerson = None
+        #     message.startDate = None
+        #     message.reason = None
     return message
 
 
@@ -148,30 +150,46 @@ def main():
         while True:
             print("请输入")
             sentence = input()
-            sentence = preprocess(sentence)
-            splits = re.compile("[,，。,]").split(sentence)
-            results = [nlp.parse(s) for s in splits]
-            trees = [ParentedTree.fromstring(result) for result in results]
-            final_result = find_reason(trees)
-            # output: leave_reason
-            output = "".join(final_result)
-            # 没找到理由
-            if len(output) == 1:
-                print("您的请假理由是？")
-            else:
-                print(output)
+            if do_ask_for_leave(sentence):
+                message = ask_for_leave(sentence)
 
-        # sentence = input()
-        # if do_ask_for_leave(sentence):
-        #     message = ask_for_leave(sentence)
-        #     print("\n开始时间：", message.startDate,
-        #           "\n结束时间：", message.endDate,
-        #           "\n请假长度：", message.duration,
-        #           "\n请假类型：", message.type,
-        #           "\n审核人：", message.examinePerson,
-        #           "\n抄送邮箱：", message.email)
-        #     break
-        # print("你要做什么呢")
+                while True:
+                    if len(message.reason) == 0:
+                        processed = preprocess(sentence)
+                        splits = re.compile("[,，。,]").split(processed)
+                        results = [nlp.parse(s) for s in splits]
+                        trees = [ParentedTree.fromstring(result) for result in results]
+                        final_result = find_reason(trees)
+                        message.reason = "".join(final_result)
+                        # print(message.reason)
+                        # print(len(message.reason))
+                        if len(message.reason) == 0:
+                            print("请输入请假理由")
+                            sentence = input()
+                        else:
+                            break
+
+                print("确认吗？")
+                sentence = input()
+                if "确认" in sentence:
+                    print("\n开始时间：", message.startDate,
+                          "\n结束时间：", message.endDate,
+                          "\n请假长度：", message.duration,
+                          "\n请假类型：", message.type,
+                          "\n审核人：", message.examinePerson,
+                          "\n抄送邮箱：", message.email,
+                          "\n请假理由：", message.reason)
+                    break
+                elif "不" in sentence:
+                    message.duration = None
+                    message.type = None
+                    message.email = None
+                    message.endDate = None
+                    message.examinePerson = None
+                    message.startDate = None
+                    message.reason = ""
+
+            print("你要做什么呢")
 
 
 main()
