@@ -97,7 +97,10 @@ class TimeNormalizer:
         temp = []
         pos = []
         match = self.pattern.finditer(self.target)
+        # print("target",self.target)
+        # print("match", match)
         for m in match:
+            # print(m)
             pos.append(m.span())
             startline = m.start()
             if startline == endline:

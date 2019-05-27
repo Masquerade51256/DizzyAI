@@ -11,15 +11,20 @@ message = LeaveMessage()
 tn = TimeNormalizer()
 ex = Extractor()
 
+# 一天工作8小时
+WORK_HOURS = 8
+
 def get_start_and_end_and_duration(sentence):
     s_time = message.startDate
     e_time = message.endDate
     duration = message.duration
+
+
+
     pos, res = tn.parse(target=sentence)
     # print(pos)
     # print(res)
     res = json.loads(res)
-
     try:
         if res['type'] == "timedelta":
             duration = res['timedelta']
@@ -32,14 +37,29 @@ def get_start_and_end_and_duration(sentence):
             s_time = res['timestamp']
             # print(s_time)
 
-        if s_time is not None and duration is not None and e_time is None:
+        a_half_day = re.search(r'(.*)(半)(天|日)(.*).*', sentence, re.M | re.I)
+        more_half_day = (re.search(r'(.*)(天|日)(半)(.*).*', sentence, re.M | re.I))
+        if more_half_day:
+            # print("more")
+            duration = duration.split(', ')[0] +', '+ str(int(WORK_HOURS/2)) + ":00:00"
+            message.duration = duration
+        elif a_half_day:
+            # print("a")
+            duration = "0 days"+str(int(WORK_HOURS/2))+":00:00"
+            message.duration = duration
+
+        # 未填入结束时间
+        if s_time is not None and duration is not None:
             t_days = int(duration.split()[0])
-            t_days -= 1
-            e_time = arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
-        elif s_time is not None and duration is not None and e_time is not None:
-            t_days = int(duration.split()[0])
-            t_days -= 1
-            if e_time != arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss'):
+            # t_days -= 1
+            t_hours = duration.split(', ')[1]
+            t_hours = int(t_hours.split(':')[0])
+            if e_time is None:
+                e_time = s_time
+                e_time = arrow.get(e_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
+                e_time = arrow.get(e_time).shift(hours=+t_hours).format('YYYY-MM-DD HH:mm:ss')
+
+            elif e_time != arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss'):
                 s_time = None
                 e_time = None
                 duration = None

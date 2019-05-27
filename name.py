@@ -1,6 +1,7 @@
 from stanfordcorenlp import StanfordCoreNLP
 from pypinyin import lazy_pinyin, Style
 import pypinyin
+import logging
 
 
 # 输入：审核人名单（一个列表），一句话。
@@ -10,7 +11,7 @@ class NameMatcher:
     Aditor = ['刘岳涵', '徐锦程', '倪奕玮', '刘娅璇', '刘雨', '杨慧宇', '苏昭帆', '郭辉', '邹笑寒', '杜庆峰', '赵冬月']
 
     def __init__(self):
-        self.nlp = StanfordCoreNLP(r'./stanford-corenlp-full-2018-02-27', lang='zh')
+        self.nlp = StanfordCoreNLP(r'./stanford-corenlp-full-2018-10-05', lang='zh',logging_level=logging.INFO)
         return
 
     def match(self, sentence):
