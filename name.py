@@ -1,3 +1,4 @@
+# DISABLE NOW
 from stanfordcorenlp import StanfordCoreNLP
 from pypinyin import lazy_pinyin, Style
 import pypinyin

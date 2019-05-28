@@ -77,7 +77,10 @@ class Extractor:
         if result == 0:
             return None
         else:
-            return result
+            name = ""
+            for w in result:
+                name += w
+            return name
 
     @staticmethod
     def aditor_transform(chinese_aditor_nameList):
