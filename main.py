@@ -154,9 +154,7 @@ def ask_for_leave(sentence):
 
         print("确认吗？")
         sentence = input()
-        if "确认" in sentence:
-            break
-        elif "不" in sentence:
+        if "不" in sentence:
             message.duration = None
             message.type = None
             message.email = None
@@ -164,6 +162,8 @@ def ask_for_leave(sentence):
             message.examinePerson = None
             message.startDate = None
             message.reason = None
+        elif "确认" in sentence:
+            break
     return message
 
 
