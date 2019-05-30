@@ -90,6 +90,7 @@ def find_reason(trees):
     vp = ""
     final_result = []
     for tree in trees:
+        # tree.pretty_print()
         sentence = "".join(tree.leaves())
         if contain_approver(tree):
             # trees.remove(tree)
@@ -110,16 +111,25 @@ def find_reason(trees):
             # current_tree.pretty_print()
             # vp = "".join(current_tree.leaves())
             # trees.remove(tree)
-            for i in range(len(current_tree.leaves())):
-                final_result.append(current_tree.leaves()[i])
-            final_result.append(" ")
+            if len(current_tree.leaves()) > 0:
+                cnt = 0
+                for i in range(len(current_tree.leaves())):
+                    if current_tree.leaves()[i] != "要" and current_tree.leaves()[i] != "想" and current_tree.leaves()[i] != "准备" and current_tree.leaves()[i] != "打算":
+                        final_result.append(current_tree.leaves()[i])
+                        cnt = cnt + 1
+                if cnt > 0:
+                    final_result.append(" ")
             continue
         else:
             temp = traverse_remains(tree)
             if len(temp) > 0:
+                cnt = 0
                 for i in range(len(temp)):
-                    final_result.append(temp[i])
-                final_result.append(" ")
+                    if temp[i] != "要" and temp[i] != "想" and temp[i] != "准备" and temp[i] != "打算":
+                        final_result.append(temp[i])
+                        cnt = cnt + 1
+                if cnt > 0:
+                    final_result.append(" ")
     reason.extend(trees)
     return final_result
 
@@ -141,8 +151,9 @@ def preprocess(sentence):
 #             trees = [ParentedTree.fromstring(result) for result in results]
 #             final_result = find_reason(trees)
 #             output = "".join(final_result)
+#             print(len(output))
 #             print(output)
-
-
+#
+#
 # main()
 
