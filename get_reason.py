@@ -141,8 +141,8 @@ def find_reason(trees):
 
 def preprocess(sentence):
     try:
-        cutspan = re.search(r'请(.*)假',sentence).span()
-        sentence = sentence[0:cutspan[0]] + sentence[cutspan[1]:len(sentence)]
+        cutspan = re.search(r'请(.*)假(.*)(天?|月?|年?|周?|小时?)',sentence).span()
+        sentence = sentence[0:cutspan[0]] + "请假" + sentence[cutspan[1]:len(sentence)]
         return sentence
     except:
         return sentence
