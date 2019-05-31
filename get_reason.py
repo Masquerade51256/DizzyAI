@@ -19,7 +19,7 @@ def find_remains_vp(t, np_trees):
         t.label()
     except AttributeError:
         return
-
+    # t.pretty_print()
     if t.label() == "VV" or t.label() == 'VP' or t.label() == 'VCD' or t.label() == 'VCP' or t.label() == 'VNV' or t.label() == 'VPT' or t.label() == 'VRD' or t.label() == 'VSB':
         current = t
         for i in range(len(t.leaves())):
@@ -90,7 +90,7 @@ def find_reason(trees):
     vp = ""
     final_result = []
     for tree in trees:
-        tree.pretty_print()
+        # tree.pretty_print()
         sentence = "".join(tree.leaves())
         if contain_approver(tree):
             # trees.remove(tree)
@@ -106,7 +106,7 @@ def find_reason(trees):
         #     print(pos[0][1])
         #     print(sentence[pos[0][0]])
             # print(sentence.type())
-        if re.match(r'(.*)请(.*?)假(.*).*', sentence) is not None:
+        if re.match(r'(.*)请(.*)假(.*)', sentence) is not None:
             # 判断是否有其他动词
             current_tree = tree
             # current_tree.pretty_print()
@@ -140,49 +140,66 @@ def find_reason(trees):
 
 
 def preprocess(sentence):
-    sentence = sentence.replace("请个假", "请假")
-    return sentence
+    try:
+        cutspan = re.search(r'请(.*)假',sentence).span()
+        sentence = sentence[0:cutspan[0]] + sentence[cutspan[1]:len(sentence)]
+        return sentence
+    except:
+        return sentence
 
 
-def main():
-    with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
-        nlp.parse("test")
-        while True:
-            print("请输入")
-            sentence = input()
-            sentence = preprocess(sentence)
-            tn = TimeNormalizer()
-            pos, _ = tn.parse(sentence)
-            if len(pos) > 0:
-                print("pos tuple", pos)
-                print("length of pos", len(pos))
-                # new_str = ""
-                for i in range(len(pos)-1, -1, -1):
-                    for j in range(pos[i][1]-1, pos[i][0]-1, -1):
-                        print("pos", j)
-                        print("word", sentence[j])
-                        sentence = sentence[:j]+sentence[j+1:]
-                        print("after", sentence)
-                print(sentence)
-            print(sentence)
-            splits = re.compile("[,，。,]").split(sentence)
-
-            # for s in splits:
-            #     pos, _ = tn.parse(s)
-            #     if len(pos) > 0:
-            #         new_str = ""
-            #         for i in range(0, len(s)):
-            #             if i < pos[0][0] or i >= pos[0][1]:
-            #                 new_str = new_str + s[i]
-            #         s = new_str
-            #         print(s)
-            results = [nlp.parse(s) for s in splits]
-            trees = [ParentedTree.fromstring(result) for result in results]
-            final_result = find_reason(trees)
-            output = "".join(final_result)
-            print(len(output))
-            print(output)
+def get_reason(sentence, nlp):
+    processed = preprocess(sentence)
+    if len(processed)!= 0:
+        splits = re.compile("[,，。,]").split(processed)
+        results = [nlp.parse(s) for s in splits]
+        trees = [ParentedTree.fromstring(result) for result in results]
+        final_result = find_reason(trees)
+        # print(final_result)
+        if len(final_result) != 0:
+            return "".join(final_result)
+    return None
 
 
-main()
+# def main():
+#     with StanfordCoreNLP(r'stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
+#         nlp.parse("test")
+#         while True:
+#             print("请输入")
+#             sentence = input()
+#             sentence = preprocess(sentence)
+#             tn = TimeNormalizer()
+#             pos, _ = tn.parse(sentence)
+#             if len(pos) > 0:
+#                 print("pos tuple", pos)
+#                 print("length of pos", len(pos))
+#                 # new_str = ""
+#                 for i in range(len(pos)-1, -1, -1):
+#                     for j in range(pos[i][1]-1, pos[i][0]-1, -1):
+#                         print("pos", j)
+#                         print("word", sentence[j])
+#                         sentence = sentence[:j]+sentence[j+1:]
+#                         print("after", sentence)
+#                 print(sentence)
+#             print(sentence)
+#             splits = re.compile("[,，。,]").split(sentence)
+#
+#             # for s in splits:
+#             #     pos, _ = tn.parse(s)
+#             #     if len(pos) > 0:
+#             #         new_str = ""
+#             #         for i in range(0, len(s)):
+#             #             if i < pos[0][0] or i >= pos[0][1]:
+#             #                 new_str = new_str + s[i]
+#             #         s = new_str
+#             #         print(s)
+#             results = [nlp.parse(s) for s in splits]
+#             trees = [ParentedTree.fromstring(result) for result in results]
+#             final_result = find_reason(trees)
+#             output = "".join(final_result)
+#             print(len(output))
+#             print(output)
+#
+
+# main()
 

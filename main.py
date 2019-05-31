@@ -6,8 +6,7 @@ import re
 import arrow
 import json
 from stanfordcorenlp import StanfordCoreNLP
-from nltk.tree import ParentedTree
-from get_reason import find_reason, preprocess
+from get_reason import get_reason
 
 
 
@@ -17,6 +16,13 @@ tn = TimeNormalizer()
 ex = Extractor()
 
 
+# 一天工作时间为8小时
+WORK_HOURS = 8
+
+# 上下班时间
+GO_WORK_TIME = "09:00:00"
+OFF_WORK_TIME = "17:00:00"
+
 def get_start_and_end_and_duration(sentence):
     s_time = message.startDate
     e_time = message.endDate
@@ -25,7 +31,6 @@ def get_start_and_end_and_duration(sentence):
     # print(pos)
     # print(res)
     res = json.loads(res)
-
     try:
         if res['type'] == "timedelta":
             duration = res['timedelta']
@@ -36,30 +41,56 @@ def get_start_and_end_and_duration(sentence):
             e_time = res['timespan'][1]
         elif res['type'] == "timestamp":
             s_time = res['timestamp']
+            s_hour = str(s_time).split(' ')[1].split(':')[0]
+            # print(s_hour)
+            if s_hour == "00":
+                s_time = str(s_time).split(' ')[0]+' '+GO_WORK_TIME
+                # print(s_time)
             # print(s_time)
-
-        if s_time is not None and duration is not None and e_time is None:
-            t_days = int(duration.split()[0])
-            t_days -= 1
-            e_time = arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
-        elif s_time is not None and duration is not None and e_time is not None:
-            t_days = int(duration.split()[0])
-            t_days -= 1
-            if e_time != arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss'):
-                s_time = None
-                e_time = None
-                duration = None
-                print("请重新输入请假时间")
-
-        return (s_time, e_time, duration)
     except:
-        return (s_time, e_time, duration)
+        duration = message.duration
+        s_time = message.startDate
+        e_time = message.endDate
+
+    a_half_day = re.search(r'(.*)(半)(.*)([天]|[日](.*))', sentence, re.M | re.I)
+    more_half_day = re.search(r'((.*)([天]|[日])半(.*))|((.*)(再|还|另外|另)(.*)(加?)半(.*)([天]|[日])(.*))', sentence, re.M | re.I)
+    # 类似"一天半"
+    if more_half_day:
+        # print("more")
+        duration = duration.split(', ')[0] + ', ' + str(int(WORK_HOURS/2)) + ":00:00"
+        message.duration = duration
+    # "半天"
+    elif a_half_day:
+        # print("a")
+        duration = "0 days, "+str(int(WORK_HOURS/2))+":00:00"
+        message.duration = duration
+
+    if s_time is not None and duration is not None:
+        t_days = int(duration.split()[0])
+        # t_days -= 1
+        # print(duration)
+        t_hours = duration.split(', ')[1]
+        t_hours = int(t_hours.split(':')[0])
+
+        # 未填入结束时间
+        if e_time is None:
+            e_time = s_time
+            e_time = arrow.get(e_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
+            e_time = arrow.get(e_time).shift(hours=+t_hours).format('YYYY-MM-DD HH:mm:ss')
+
+        #结束时间矛盾
+        elif e_time != arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss'):
+            s_time = None
+            e_time = None
+            duration = None
+            print("请重新输入请假时间")
+    return (s_time, e_time, duration)
 
 
 def get_type(sentence):
-    affairs = re.search(r'(.*)事(.*?)假(.*).*', sentence, re.M | re.I)
-    sick = re.search(r'(.*)病(.*?)假(.*).*', sentence, re.M | re.I)
-    marriage = re.search(r'(.*)婚(.*?)假(.*).*', sentence, re.M | re.I)
+    affairs = re.search(r'(.*)事(.*)假(.*).*', sentence, re.M | re.I)
+    sick = re.search(r'(.*)病(.*)假(.*).*', sentence, re.M | re.I)
+    marriage = re.search(r'(.*)婚(.*)假(.*).*', sentence, re.M | re.I)
     if affairs:
         return "事假"
     elif sick:
@@ -99,11 +130,14 @@ def ask(message):
     if message.email is None:
         return "请输入抄送邮箱"
 
+    if message.reason is None:
+        return  "请输入请假理由"
+
     return None
 
 
 def do_ask_for_leave(sentence):
-    matchObj = re.search(r'(.*)请(.*?)假(.*).*', sentence, re.M | re.I)
+    matchObj = re.search(r'(.*)请(.*)假(.*).*', sentence, re.M | re.I)
     return matchObj
 
 
@@ -121,75 +155,48 @@ def ask_for_leave(sentence):
         if message.email is None:
             message.email = get_email(sentence)
 
+        if message.reason is None:
+            message.reason = get_reason(sentence, nlp)
+
         question = ask(message)
         if question is not None:
             print(question)
             sentence = input()
             continue
-        else:
-            break
 
-        # print("确认吗？")
-        # sentence = input()
-        # if "确认" in sentence:
-        #     break
-        # elif "不" in sentence:
-        #     message.duration = None
-        #     message.type = None
-        #     message.email = None
-        #     message.endDate = None
-        #     message.examinePerson = None
-        #     message.startDate = None
-        #     message.reason = None
+        print("确认吗？")
+        sentence = input()
+        deny = re.search(r'不|重(新?)(.*)(填(写?)|输(入?))|重来|打?填?写?错了?', sentence)
+        if deny:
+            message.duration = None
+            message.type = None
+            message.email = None
+            message.endDate = None
+            message.examinePerson = None
+            message.startDate = None
+            message.reason = None
+            sentence = input()
+        elif "确认" in sentence:
+            break
     return message
 
 
 def main():
-    with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
-        nlp.parse("test")
         while True:
-            print("请输入")
+            print("你要做什么呢")
             sentence = input()
             if do_ask_for_leave(sentence):
                 message = ask_for_leave(sentence)
-
-                while True:
-                    if len(message.reason) == 0:
-                        processed = preprocess(sentence)
-                        splits = re.compile("[,，。,]").split(processed)
-                        results = [nlp.parse(s) for s in splits]
-                        trees = [ParentedTree.fromstring(result) for result in results]
-                        final_result = find_reason(trees)
-                        message.reason = "".join(final_result)
-                        # print(message.reason)
-                        # print(len(message.reason))
-                        if len(message.reason) == 0:
-                            print("请输入请假理由")
-                            sentence = input()
-                        else:
-                            break
-
-                print("确认吗？")
-                sentence = input()
-                if "确认" in sentence:
-                    print("\n开始时间：", message.startDate,
-                          "\n结束时间：", message.endDate,
-                          "\n请假长度：", message.duration,
-                          "\n请假类型：", message.type,
-                          "\n审核人：", message.examinePerson,
-                          "\n抄送邮箱：", message.email,
-                          "\n请假理由：", message.reason)
-                    break
-                elif "不" in sentence:
-                    message.duration = None
-                    message.type = None
-                    message.email = None
-                    message.endDate = None
-                    message.examinePerson = None
-                    message.startDate = None
-                    message.reason = ""
-
-            print("你要做什么呢")
+                print("\n开始时间：", message.startDate,
+                      "\n结束时间：", message.endDate,
+                      "\n请假长度：", message.duration,
+                      "\n请假类型：", message.type,
+                      "\n审核人：", message.examinePerson,
+                      "\n抄送邮箱：", message.email,
+                      "\n请假理由：", message.reason)
+                break
 
 
-main()
+with StanfordCoreNLP(r'stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
+        nlp.parse("test")
+        main()
