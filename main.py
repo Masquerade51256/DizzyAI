@@ -175,7 +175,7 @@ def ask_for_leave(sentence):
             message.examinePerson = None
             message.startDate = None
             message.reason = None
-            sentence = input()
+            sentence = ''
         elif "确认" in sentence:
             break
     return message
