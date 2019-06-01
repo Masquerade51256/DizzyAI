@@ -55,8 +55,11 @@ class TimeNormalizer:
         self.oldTimeBase = self.timeBase
         self.__preHandling()
         self.pos, self.timeToken = self.__timeEx()
+        print(self.timeToken)
         dic = {}
         res = self.timeToken
+
+        res_union = []
 
         if self.isTimeSpan:
             if self.invalidSpan:
@@ -64,16 +67,34 @@ class TimeNormalizer:
             else:
                 dic['type'] = 'timedelta'
                 dic['timedelta'] = self.timeSpan
+                res_union.append(dic)
+
+            if len(res) == 1:
+                dic['error'] = 'no time pattern could be extracted.'
+            elif len(res) == 2:
+                dic = {}
+                dic['type'] = 'timestamp'
+                dic['timestamp'] = res[0].time.format("YYYY-MM-DD HH:mm:ss")
+                res_union.append(dic)
+            else:
+                dic = {}
+                dic['type'] = 'timespan'
+                dic['timespan'] = [res[0].time.format("YYYY-MM-DD HH:mm:ss"), res[1].time.format("YYYY-MM-DD HH:mm:ss")]
+                res_union.append(dic)
         else:
             if len(res) == 0:
                 dic['error'] = 'no time pattern could be extracted.'
             elif len(res) == 1:
                 dic['type'] = 'timestamp'
                 dic['timestamp'] = res[0].time.format("YYYY-MM-DD HH:mm:ss")
+                res_union.append(dic)
             else:
                 dic['type'] = 'timespan'
                 dic['timespan'] = [res[0].time.format("YYYY-MM-DD HH:mm:ss"), res[1].time.format("YYYY-MM-DD HH:mm:ss")]
-        return self.pos, json.dumps(dic)
+                res_union.append(dic)
+        # print(res_union)
+        return self.pos, res_union
+
 
     def __preHandling(self):
         """
