@@ -141,6 +141,13 @@ def find_reason(trees):
 
 def preprocess(sentence):
     try:
+        sentence = sentence.replace("请个假", "请假")
+        tn = TimeNormalizer()
+        pos, _ = tn.parse(sentence)
+        if len(pos) > 0:
+            for i in range(len(pos) - 1, -1, -1):
+                for j in range(pos[i][1] - 1, pos[i][0] - 1, -1):
+                    sentence = sentence[:j] + sentence[j + 1:]
         cutspan = re.search(r'请(.*)假(.*?)(天?|月?|年?|周?|小时?)',sentence).span()
         sentence = sentence[0:cutspan[0]] + "请假" + sentence[cutspan[1]:len(sentence)]
         return sentence
@@ -162,26 +169,26 @@ def get_reason(sentence, nlp):
 
 
 # def main():
-#     with StanfordCoreNLP(r'stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
+#     with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True,) as nlp:
 #         nlp.parse("test")
 #         while True:
 #             print("请输入")
 #             sentence = input()
 #             sentence = preprocess(sentence)
-#             tn = TimeNormalizer()
-#             pos, _ = tn.parse(sentence)
-#             if len(pos) > 0:
-#                 print("pos tuple", pos)
-#                 print("length of pos", len(pos))
-#                 # new_str = ""
-#                 for i in range(len(pos)-1, -1, -1):
-#                     for j in range(pos[i][1]-1, pos[i][0]-1, -1):
-#                         print("pos", j)
-#                         print("word", sentence[j])
-#                         sentence = sentence[:j]+sentence[j+1:]
-#                         print("after", sentence)
-#                 print(sentence)
-#             print(sentence)
+#             # tn = TimeNormalizer()
+#             # pos, _ = tn.parse(sentence)
+#             # if len(pos) > 0:
+#             #     print("pos tuple", pos)
+#             #     print("length of pos", len(pos))
+#             #     # new_str = ""
+#             #     for i in range(len(pos)-1, -1, -1):
+#             #         for j in range(pos[i][1]-1, pos[i][0]-1, -1):
+#             #             print("pos", j)
+#             #             print("word", sentence[j])
+#             #             sentence = sentence[:j]+sentence[j+1:]
+#             #             print("after", sentence)
+#             #     print(sentence)
+#             # print(sentence)
 #             splits = re.compile("[,，。,]").split(sentence)
 #
 #             # for s in splits:
@@ -200,6 +207,6 @@ def get_reason(sentence, nlp):
 #             print(len(output))
 #             print(output)
 #
-
+#
 # main()
 

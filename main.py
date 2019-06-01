@@ -114,6 +114,9 @@ def get_email(sentence):
 
 
 def ask(message):
+    if message.startDate is None and message.endDate is None and message.duration is None and message.type is None and message.examinePerson is None and message.email is None and message.reason is None:
+        return "请输入请假内容"
+
     if message.type is None:
         return "请输入请假类型"
 
@@ -197,6 +200,6 @@ def main():
                 break
 
 
-with StanfordCoreNLP(r'stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
+with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
         nlp.parse("test")
         main()
