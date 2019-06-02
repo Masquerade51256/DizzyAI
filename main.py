@@ -55,40 +55,41 @@ def get_start_and_end_and_duration(sentence):
                 s_time = s_time
                 e_time = e_time
 
-            a_half_day = re.search(r'(.*)(半)(.*)([天]|[日](.*))', sentence, re.M | re.I)
-            more_half_day = re.search(r'((.*)([天]|[日])半(.*))|((.*)(再|还|另外|另)(.*)(加?)半(.*)([天]|[日])(.*))', sentence,
-                                      re.M | re.I)
-            # 类似"一天半"
-            if more_half_day:
-                # print("more")
-                duration = duration.split(', ')[0] + ', ' + str(int(WORK_HOURS / 2)) + ":00:00"
-                message.duration = duration
-            # "半天"
-            elif a_half_day:
-                # print("a")
-                duration = "0 days, " + str(int(WORK_HOURS / 2)) + ":00:00"
-                message.duration = duration
+    a_half_day = re.search(r'(.*)(半)(.*)([天]|[日](.*))', sentence, re.M | re.I)
+    more_half_day = re.search(r'((.*)([天]|[日])半(.*))|((.*)(再|还|另外|另)(.*)(加?)半(.*)([天]|[日])(.*))', sentence,
+                              re.M | re.I)
+    # 类似"一天半"
+    if more_half_day:
+        # print("more")
+        duration = duration.split(', ')[0] + ', ' + str(int(WORK_HOURS / 2)) + ":00:00"
+        message.duration = duration
+    # "半天"
+    elif a_half_day:
+        # print("a")
+        duration = "0 days, " + str(int(WORK_HOURS / 2)) + ":00:00"
+        message.duration = duration
 
-            if s_time is not None and duration is not None:
-                t_days = int(duration.split()[0])
-                # t_days -= 1
-                # print(duration)
-                t_hours = duration.split(', ')[1]
-                t_hours = int(t_hours.split(':')[0])
+    if s_time is not None and duration is not None:
+        t_days = int(duration.split()[0])
+        # t_days -= 1
+        # print(duration)
+        t_hours = duration.split(', ')[1]
+        t_hours = int(t_hours.split(':')[0])
 
-                # 未填入结束时间
-                if e_time is None:
-                    e_time = s_time
-                    e_time = arrow.get(e_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
-                    e_time = arrow.get(e_time).shift(hours=+t_hours).format('YYYY-MM-DD HH:mm:ss')
+        # 未填入结束时间
+        if e_time is None:
+            e_time = s_time
+            e_time = arrow.get(e_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss')
+            e_time = arrow.get(e_time).shift(hours=+t_hours).format('YYYY-MM-DD HH:mm:ss')
 
-                # 结束时间矛盾
-                elif e_time != arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss'):
-                    s_time = None
-                    e_time = None
-                    duration = None
-                    print("请重新输入请假时间")
+        # 结束时间矛盾
+        elif e_time != arrow.get(s_time).shift(days=+t_days).format('YYYY-MM-DD HH:mm:ss'):
+            s_time = None
+            e_time = None
+            duration = None
+            print("请重新输入请假时间")
     return (s_time, e_time, duration)
+
 
 
 
