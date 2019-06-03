@@ -55,7 +55,7 @@ class TimeNormalizer:
         self.oldTimeBase = self.timeBase
         self.__preHandling()
         self.pos, self.timeToken = self.__timeEx()
-        print(self.timeToken)
+        # print(self.timeToken)
         dic = {}
         res = self.timeToken
 

@@ -87,7 +87,7 @@ def get_start_and_end_and_duration(sentence):
             s_time = None
             e_time = None
             duration = None
-            print("请重新输入请假时间")
+            print("输入的请假时间矛盾，已清空")
     return (s_time, e_time, duration)
 
 
@@ -175,7 +175,7 @@ def ask_for_leave(sentence):
 
         print("确认吗？")
         sentence = input()
-        deny = re.search(r'不|重(新?)(.*)(填(写?)|输(入?))|重来|打?填?写?错了?', sentence)
+        deny = re.search(r'不|重(新?)(.*)(填(写?)|输(入?))|重来|打?填?写?错了?|改', sentence)
         if deny:
             message.duration = None
             message.type = None
