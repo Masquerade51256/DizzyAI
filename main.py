@@ -184,7 +184,8 @@ def ask_for_leave(sentence):
             message.examinePerson = None
             message.startDate = None
             message.reason = None
-            sentence = ''
+            print("请假信息已清空，请重新输入请假内容")
+            sentence = input()
         elif "确认" in sentence:
             break
     return message
