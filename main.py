@@ -121,7 +121,7 @@ def get_email(sentence):
 
 def ask(message):
     if message.startDate is None and message.endDate is None and message.duration is None and message.type is None and message.examinePerson is None and message.email is None and message.reason is None:
-        return "请输入请假内容"
+        return "请输入请假时间等信息"
 
     if message.type is None:
         return "请输入请假类型"
@@ -131,7 +131,7 @@ def ask(message):
     elif message.startDate is not None and message.endDate is None and message.duration is None:
         return "你想请几天假"
     elif message.startDate is None and message.endDate is None:
-        return "请输入请假的开始或结束时间"
+        return "请输入请假的开始时间"
 
     if message.examinePerson is None:
         return "请输入您的审批人姓名"
@@ -140,7 +140,8 @@ def ask(message):
         return "请输入抄送邮箱"
 
     if message.reason is None:
-        return  "请输入请假理由"
+        print("请输入请假理由")
+        message.reason = input()
 
     return None
 
@@ -207,6 +208,6 @@ def main():
                 break
 
 
-with StanfordCoreNLP(r'stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
+with StanfordCoreNLP(r'E:/stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
         nlp.parse("test")
         main()

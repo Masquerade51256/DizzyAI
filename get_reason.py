@@ -84,8 +84,10 @@ def find_reason(trees):
     reason = []
     final_result = []
     for tree in trees:
-        # tree.pretty_print()
+        tree.pretty_print()
         sentence = "".join(tree.leaves())
+        if '@' in sentence:
+            continue
         if contain_approver(tree):
             # trees.remove(tree)
             continue
@@ -131,7 +133,7 @@ def preprocess(sentence):
             for i in range(len(pos) - 1, -1, -1):
                 for j in range(pos[i][1] - 1, pos[i][0] - 1, -1):
                     sentence = sentence[:j] + sentence[j + 1:]
-        cutspan = re.match(r'请(.*)假(.*?)(日?|天?|月?|年?|周?|小时?)',sentence).span()
+        cutspan = re.match(r'(.*?)请(.*)假(.*?)(日?|天?|月?|年?|周?|小时?)',sentence).span()
         sentence = sentence[0:cutspan[0]] + "请假" + sentence[cutspan[1]:len(sentence)]
         return sentence
     except:
