@@ -1,20 +1,14 @@
 from TimeNLP import TimeNormalizer
 from extractor import Extractor
 from LeaveMessage import LeaveMessage
-# from name import NameMatcher
 import re
 import arrow
-import json
 from stanfordcorenlp import StanfordCoreNLP
 from get_reason import get_reason
 
-
-
-message = LeaveMessage()
 # nm = NameMatcher()
 tn = TimeNormalizer()
 ex = Extractor()
-
 
 # 一天工作时间为8小时
 WORK_HOURS = 8
@@ -23,7 +17,7 @@ WORK_HOURS = 8
 GO_WORK_TIME = "09:00:00"
 OFF_WORK_TIME = "17:00:00"
 
-def get_start_and_end_and_duration(sentence):
+def get_start_and_end_and_duration(sentence, message):
     s_time = message.startDate
     e_time = message.endDate
     duration = message.duration
@@ -88,7 +82,7 @@ def get_start_and_end_and_duration(sentence):
             e_time = None
             duration = None
             print("输入的请假时间矛盾，已清空")
-    return (s_time, e_time, duration)
+    return s_time, e_time, duration
 
 
 
@@ -107,7 +101,7 @@ def get_type(sentence):
         return None
 
 
-def get_examinPerson(sentence):
+def get_examine_person(sentence):
     name = ex.extract_name(sentence)
     # name = nm.match(sentence)
     # print(name)
@@ -151,16 +145,16 @@ def do_ask_for_leave(sentence):
     return matchObj
 
 
-def ask_for_leave(sentence):
+def ask_for_leave(sentence, message):
     while True:
         if message.type is None:
             message.type = get_type(sentence)
 
         if message.startDate is None or message.endDate is None:
-            message.startDate, message.endDate, message.duration = get_start_and_end_and_duration(sentence)
+            message.startDate, message.endDate, message.duration = get_start_and_end_and_duration(sentence, message)
 
         if message.examinePerson is None:
-            message.examinePerson = get_examinPerson(sentence)
+            message.examinePerson = get_examine_person(sentence)
 
         if message.email is None:
             message.email = get_email(sentence)
@@ -193,19 +187,20 @@ def ask_for_leave(sentence):
 
 
 def main():
-        while True:
-            print("你要做什么呢")
-            sentence = input()
-            if do_ask_for_leave(sentence):
-                message = ask_for_leave(sentence)
-                print("\n开始时间：", message.startDate,
-                      "\n结束时间：", message.endDate,
-                      "\n请假长度：", message.duration,
-                      "\n请假类型：", message.type,
-                      "\n审核人：", message.examinePerson,
-                      "\n抄送邮箱：", message.email,
-                      "\n请假理由：", message.reason)
-                break
+    while True:
+        print("你要做什么呢")
+        sentence = input()
+        if do_ask_for_leave(sentence):
+            message = ask_for_leave(sentence, LeaveMessage())
+            print("\n开始时间：", message.startDate,
+                  "\n结束时间：", message.endDate,
+                  "\n请假长度：", message.duration,
+                  "\n请假类型：", message.type,
+                  "\n审核人：", message.examinePerson,
+                  "\n抄送邮箱：", message.email,
+                  "\n请假理由：", message.reason)
+            print("---------------")
+            # break
 
 
 with StanfordCoreNLP(r'E:/stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
