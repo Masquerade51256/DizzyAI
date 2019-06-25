@@ -1,3 +1,6 @@
+#@Deprecated
+新项目移动至https://github.com/XLab-Tongji/ModularizedDizzyAI
+
 #### 安装
 基础依赖安装使用pip install即可，例如nltk, jieba等，根据运行提示安装缺少的依赖。
 

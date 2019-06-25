@@ -3,7 +3,7 @@ from extractor import Extractor
 from LeaveMessage import LeaveMessage
 import re
 import arrow
-from stanfordcorenlp import StanfordCoreNLP
+# from stanfordcorenlp import StanfordCoreNLP
 from get_reason import get_reason
 
 # nm = NameMatcher()
@@ -202,7 +202,7 @@ def main():
             print("---------------")
             # break
 
-
-with StanfordCoreNLP(r'E:/stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
-        nlp.parse("test")
-        main()
+main()
+# with StanfordCoreNLP(r'E:/stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
+#         nlp.parse("test")
+#         main()
