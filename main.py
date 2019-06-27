@@ -207,6 +207,6 @@ def main():
                 break
 
 
-with StanfordCoreNLP(r'stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
+with StanfordCoreNLP(r'D:\corenlp\stanford-corenlp-full-2018-10-05', lang='zh', memory='4g', quiet=True, ) as nlp:
         nlp.parse("test")
         main()
