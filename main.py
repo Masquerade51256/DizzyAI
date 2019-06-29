@@ -3,6 +3,7 @@ import LeaveMessage
 import re
 from getTime import *
 from getType import *
+from ask import *
 from stanfordcorenlp import StanfordCoreNLP
 from getReason import get_reason
 ex = Extractor()
@@ -49,9 +50,9 @@ def ask(message):
     return None
 
 
-def do_ask_for_leave(sentence):
-    match_obj = re.search(r'(.*)请(.*)假(.*).*', sentence, re.M | re.I)
-    return match_obj
+# def do_ask_for_leave(sentence):
+#     match_obj = re.search(r'(.*)请(.*)假(.*).*', sentence, re.M | re.I)
+#     return match_obj
 
 
 def ask_for_leave(sentence, message):
