@@ -1,24 +1,25 @@
 from extractor import Extractor
-from LeaveMessage import LeaveMessage
+import LeaveMessage
 import re
-import getTime as gt
+from getTime import *
+from getType import *
 from stanfordcorenlp import StanfordCoreNLP
 from getReason import get_reason
 ex = Extractor()
 
 
-def get_type(sentence):
-    affairs = re.search(r'(.*)事(.*)假(.*).*', sentence, re.M | re.I)
-    sick = re.search(r'(.*)病(.*)假(.*).*', sentence, re.M | re.I)
-    marriage = re.search(r'(.*)婚(.*)假(.*).*', sentence, re.M | re.I)
-    if affairs:
-        return "事假"
-    elif sick:
-        return "病假"
-    elif marriage:
-        return "婚假"
-    else:
-        return None
+# def get_type(sentence):
+#     affairs = re.search(r'(.*)事(.*)假(.*).*', sentence, re.M | re.I)
+#     sick = re.search(r'(.*)病(.*)假(.*).*', sentence, re.M | re.I)
+#     marriage = re.search(r'(.*)婚(.*)假(.*).*', sentence, re.M | re.I)
+#     if affairs:
+#         return "事假"
+#     elif sick:
+#         return "病假"
+#     elif marriage:
+#         return "婚假"
+#     else:
+#         return None
 
 
 def ask(message):
@@ -59,7 +60,7 @@ def ask_for_leave(sentence, message):
             message.type = get_type(sentence)
 
         if message.startDate is None or message.endDate is None:
-            message.startDate, message.endDate, message.duration = gt.get_start_and_end_and_duration(sentence, message)
+            message.startDate, message.endDate, message.duration = get_start_and_end_and_duration(sentence, message)
 
         if message.examinePerson is None:
             message.examinePerson = ex.extract_name(sentence)
@@ -110,6 +111,6 @@ def main():
             print("---------------")
             # break
 
-with StanfordCoreNLP(r'./stanford-corenlp-full-2018-10-05', lang='zh', memory='2g', quiet=True, ) as nlp:
-        nlp.parse("test")
-        main()
+# with StanfordCoreNLP(r'./stanford-corenlp-full-2018-10-05', lang='zh', memory='2g', quiet=True, ) as nlp:
+#         nlp.parse("test")
+#         main()
