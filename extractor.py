@@ -1,16 +1,17 @@
 import re
 from itertools import groupby
 import jieba
-import jieba.posseg as pseg
-from pypinyin import lazy_pinyin, Style
+import jieba.posseg as posSeg
+from pypinyin import lazy_pinyin
 
 import logging
 
 jieba.setLogLevel(logging.INFO)
 
 
+# noinspection PyTypeChecker
 class Extractor:
-    Aditor = []
+    Auditor = []
 
     def __init__(self):
         # fp = open('./resource/myDict.dict', 'r')
@@ -19,9 +20,9 @@ class Extractor:
             while s:
                 dict = s.split(' ')
                 name = dict[0]
-                self.Aditor.append(name)
+                self.Auditor.append(name)
                 s = fp.readline()
-            # print(self.Aditor)
+            # print(self.Auditor)
             fp.close()
 
         jieba.load_userdict('./resource/myDict.dict')
@@ -74,26 +75,26 @@ class Extractor:
         return text
 
     def extract_name(self, text):
-        result = self.name_match(self.Aditor, text)
+        result = self.name_match(self.Auditor, text)
         if result == 0:
             return None
         else:
             return result
 
     @staticmethod
-    def aditor_transform(chinese_aditor_nameList):
-        pinyin_aditor_nameList = []
-        for chinese_aditor_name in chinese_aditor_nameList:
-            pinyin_aditor_name = tuple(lazy_pinyin(chinese_aditor_name))
-            chinese_name = tuple(chinese_aditor_name)
-            pinyin_aditor_name = pinyin_aditor_name + chinese_name
-            pinyin_aditor_nameList.append(pinyin_aditor_name)
-        # print(pinyin_aditor_nameList)
-        return pinyin_aditor_nameList
+    def auditor_transform(chinese_auditor_nameList):
+        pinyin_auditor_nameList = []
+        for chinese_auditor_name in chinese_auditor_nameList:
+            pinyin_auditor_name = tuple(lazy_pinyin(chinese_auditor_name))
+            chinese_name = tuple(chinese_auditor_name)
+            pinyin_auditor_name = pinyin_auditor_name + chinese_name
+            pinyin_auditor_nameList.append(pinyin_auditor_name)
+        # print(pinyin_auditor_nameList)
+        return pinyin_auditor_nameList
 
     @staticmethod
     def employer_transform(text):
-        seg_list = [(str(t.word), str(t.flag)) for t in pseg.cut(text)]
+        seg_list = [(str(t.word), str(t.flag)) for t in posSeg.cut(text)]
         names = []
         for ele_tup in seg_list:
             if 'nr' in ele_tup[1]:
@@ -129,24 +130,23 @@ class Extractor:
         # print(dp[m][n])
         return dp[m][n]
 
-    def name_match(self, aditor_list, employer_sentence):
-        aditors = self.aditor_transform(aditor_list)
+    def name_match(self, auditor_list, employer_sentence):
+        auditors = self.auditor_transform(auditor_list)
         employers = self.employer_transform(employer_sentence)
-        for aditor in aditors:
+        for auditor in auditors:
             for employer in employers:
-                # print("jin ru  shuang xun huan")
-                # print(len(aditor))
+                # print(len(auditor))
                 # print(len(employer))
-                if (len(aditor) / 2) != len(employer):
+                if (len(auditor) / 2) != len(employer):
                     # print("name bu deng chang")
                     continue
                 else:
                     distance = 0
                     for index in range(0, len(employer)):
-                        distance = distance + self.minDistance(aditor[index], employer[index])
+                        distance = distance + self.minDistance(auditor[index], employer[index])
                         # print(distance)
                     if distance < len(employer):
-                        return aditor[len(employer):]
+                        return auditor[len(employer):]
         return 0
 
     def most_common(self, content_list):

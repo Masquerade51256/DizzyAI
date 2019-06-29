@@ -4,18 +4,17 @@
 # @Author  : zhm
 # @File    : TimeNormalizer.py
 # @Software: PyCharm
-import pickle
-import regex as re
-import arrow
 import json
 import os
+
+import arrow
+import regex as re
 
 from StringPreHandler import StringPreHandler
 from TimePoint import TimePoint
 from TimeUnit import TimeUnit
 
-import sys
-import imp
+
 # imp.reload(sys)
 # sys.setdefaultencoding('utf8')
 
@@ -150,13 +149,3 @@ class TimeNormalizer:
             if tu.time.timestamp != 0:
                 res.append(tu)
         return res
-
-if __name__ == '__main__':
-
-    s = input()
-    tn = TimeNormalizer()
-    while s:
-        pos, res = tn.parse(target=s)
-        print(pos)
-        print(res)
-        s = input()
