@@ -3,7 +3,6 @@ import LeaveMessage
 import re
 from getTime import *
 from getType import *
-from ask import *
 from stanfordcorenlp import StanfordCoreNLP
 from getReason import get_reason
 ex = Extractor()
