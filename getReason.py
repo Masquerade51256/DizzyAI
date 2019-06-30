@@ -128,10 +128,13 @@ def preprocess(sentence):
         tn = TimeNormalizer()
         pos, _ = tn.parse(sentence)
         if len(pos) > 0:
-            for i in range(len(pos) - 1, -1, -1):
-                for j in range(pos[i][1] - 1, pos[i][0] - 1, -1):
-                    sentence = sentence[:j] + sentence[j + 1:]
-        cutspan = re.match(r'请(.*)假(.*?)(日?|天?|月?|年?|周?|小时?)',sentence).span()
+            l = [x for y in pos for x in y]
+            a, b = min(l), max(l)
+            if a > 0 and sentence[a - 1] == "从":
+                a = a - 1
+            sentence = sentence[: a] + sentence[b:]
+            print(sentence)
+        cutspan = re.search(r'请(.*?)假(.*?)(日?|天?|月?|年?|周?|小时?)', sentence).span()
         sentence = sentence[0:cutspan[0]] + "请假" + sentence[cutspan[1]:len(sentence)]
         return sentence
     except:
@@ -139,9 +142,11 @@ def preprocess(sentence):
 
 
 def get_reason(sentence, nlp):
+    print("sentence", sentence)
     processed = preprocess(sentence)
+    print("processed", processed)
     if len(processed)!= 0:
-        splits = re.compile("[,，。,]").split(processed)
+        splits = re.compile("[,，,]").split(processed)
         results = [nlp.parse(s) for s in splits]
         trees = [ParentedTree.fromstring(result) for result in results]
         final_result = find_reason(trees)
