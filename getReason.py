@@ -1,3 +1,4 @@
+from stanfordcorenlp import StanfordCoreNLP
 from nltk.tree import ParentedTree
 import re
 from TimeNLP import TimeNormalizer
@@ -85,8 +86,6 @@ def find_reason(trees):
     for tree in trees:
         # tree.pretty_print()
         sentence = "".join(tree.leaves())
-        if '@' in sentence:
-            continue
         if contain_approver(tree):
             # trees.remove(tree)
             continue
@@ -94,13 +93,7 @@ def find_reason(trees):
             # trees.remove(tree)
             continue
         # pos, _ = tn.parse(sentence)
-        matchObj = re.match(r'(.*)请(.*)假(.*)', sentence)
-        if matchObj is not None:
-            sentence = sentence[: matchObj.pos] + sentence[matchObj.endpos:]
-            if sentence == "":
-                continue
-            else:
-                tree = ParentedTree.fromstring(sentence)
+        if re.match(r'(.*)请(.*)假(.*)', sentence) is not None:
             # 判断是否有其他动词
             current_tree = tree
             traverse(current_tree, current_tree)
@@ -135,16 +128,10 @@ def preprocess(sentence):
         tn = TimeNormalizer()
         pos, _ = tn.parse(sentence)
         if len(pos) > 0:
-            l = [x for y in pos for x in y]
-            a, b = min(l), max(l)
-            if a > 0 and sentence[a - 1] == "从":
-                a = a - 1
-            sentence = sentence[: a] + sentence[b:]
-
-            # for i in range(len(pos) - 1, -1, -1):
-            #     for j in range(pos[i][1] - 1, pos[i][0] - 1, -1):
-            #         sentence = sentence[:j] + sentence[j + 1:]
-        cutspan = re.match(r'(.*?)请(.*?)假(.*?)(日?|天?|月?|年?|周?|小时?)', sentence).span()
+            for i in range(len(pos) - 1, -1, -1):
+                for j in range(pos[i][1] - 1, pos[i][0] - 1, -1):
+                    sentence = sentence[:j] + sentence[j + 1:]
+        cutspan = re.match(r'请(.*)假(.*?)(日?|天?|月?|年?|周?|小时?)',sentence).span()
         sentence = sentence[0:cutspan[0]] + "请假" + sentence[cutspan[1]:len(sentence)]
         return sentence
     except:
@@ -153,14 +140,12 @@ def preprocess(sentence):
 
 def get_reason(sentence, nlp):
     processed = preprocess(sentence)
-    if len(processed) != 0:
+    if len(processed)!= 0:
         splits = re.compile("[,，。,]").split(processed)
-        results = [nlp.parse(s) for s in splits if s != ""]
+        results = [nlp.parse(s) for s in splits]
         trees = [ParentedTree.fromstring(result) for result in results]
         final_result = find_reason(trees)
         # print(final_result)
         if len(final_result) != 0:
             return "".join(final_result)
     return None
-
-

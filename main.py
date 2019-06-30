@@ -3,6 +3,7 @@ import LeaveMessage
 import re
 from getTime import *
 from getType import *
+from doAskForLeave import *
 from stanfordcorenlp import StanfordCoreNLP
 from getReason import get_reason
 ex = Extractor()
@@ -111,6 +112,6 @@ def main():
             print("---------------")
             # break
 
-# with StanfordCoreNLP(r'./stanford-corenlp-full-2018-10-05', lang='zh', memory='2g', quiet=True, ) as nlp:
-#         nlp.parse("test")
-#         main()
+with StanfordCoreNLP(r'./stanford-corenlp-full-2018-10-05', lang='zh', memory='2g', quiet=True, ) as nlp:
+        nlp.parse("test")
+        main()
