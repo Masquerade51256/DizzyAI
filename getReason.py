@@ -142,9 +142,12 @@ def preprocess(sentence):
 
 
 def get_reason(sentence, nlp):
+    if type(sentence) != str:
+        return None
     print("sentence", sentence)
     processed = preprocess(sentence)
     print("processed", processed)
+
     if len(processed)!= 0:
         splits = re.compile("[,，,]").split(processed)
         results = [nlp.parse(s) for s in splits]
